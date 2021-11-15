@@ -79,7 +79,8 @@ export default new Vuex.Store({
     decreaseBasket({ state, commit }, id) {
       const { basket } = state;
       const qty = basket[id] || 0;
-      commit("setBasket", { ...basket, [id]: Math.max(qty - 1, 0) });
+      if (qty < 1) return;
+      commit("setBasket", { ...basket, [id]: qty - 1 });
     },
     toggleFavorite({ state, commit }, id) {
       const toggled = new Set(state.favorites);
