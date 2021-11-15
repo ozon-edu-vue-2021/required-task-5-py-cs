@@ -23,6 +23,7 @@ export default {
 .qty-wrapper {
   width: 80px;
   display: flex;
+  flex: 0 0 80px;
   flex-direction: column;
   align-items: center;
 }

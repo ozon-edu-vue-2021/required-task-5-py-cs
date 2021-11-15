@@ -8,8 +8,9 @@ const BASE_URL = "https://random-data-api.com/api/food/random_food?size=30";
 
 export default new Vuex.Store({
   state: () => ({
-    products: [],
+    products: {},
     basket: {},
+    favorites: new Set(),
     isLoading: false,
     error: null,
   }),
@@ -18,41 +19,35 @@ export default new Vuex.Store({
       const { basket, products } = state;
       let total = 0;
       Object.entries(basket).forEach(([id, qty]) => {
-        const product = products.find((p) => p.id === Number(id));
+        const product = products[id];
         total += qty * product.price;
       });
       return total;
     },
     getFavorites(state) {
-      return state.products.filter((product) => product.isFavorite);
+      const { favorites, products } = state;
+      return [...favorites].map((id) => products[id]);
+    },
+    getFavoriteById(state) {
+      return (id) => state.favorites.has(id);
     },
     getBasketItems(state) {
       const { products, basket } = state;
-      return Object.entries(basket)
-        .filter(([, qty]) => qty)
-        .map(([id, qty]) => {
-          const product = products.find((p) => p.id === Number(id));
-          const { name, image, price } = product;
-          return {
-            id,
-            qty,
-            name,
-            image,
-            price,
-          };
-        });
-    },
-    getRecipe(_, getters) {
-      return (
-        getters.getBasketItems
-          .map((item) => `${item.name}: $${item.price} x ${item.qty}`)
-          .join("\n") + `\n-----\nTotal: $${getters.getBasketTotal.toFixed(2)}`
-      );
+      return Object.entries(basket).reduce((items, [id, qty]) => {
+        if (qty === 0) return items;
+        const product = products[id];
+        const { name, image, price } = product;
+        const newProduct = { id, qty, name, image, price };
+        return items.concat(newProduct);
+      }, []);
     },
   },
   mutations: {
     setProducts(state, products) {
       state.products = products;
+    },
+    setFavorites(state, favorites) {
+      state.favorites = favorites;
     },
     setIsLoading(state, isLoading) {
       state.isLoading = isLoading;
@@ -84,16 +79,16 @@ export default new Vuex.Store({
     decreaseBasket({ state, commit }, id) {
       const { basket } = state;
       const qty = basket[id] || 0;
-      commit("setBasket", { ...basket, [id]: qty - 1 });
+      commit("setBasket", { ...basket, [id]: Math.max(qty - 1, 0) });
     },
     toggleFavorite({ state, commit }, id) {
-      const { products } = state;
-      const toggled = products.map((product) =>
-        product.id === Number(id)
-          ? { ...product, isFavorite: !product.isFavorite }
-          : product
-      );
-      commit("setProducts", toggled);
+      const toggled = new Set(state.favorites);
+      if (toggled.has(id)) {
+        toggled.delete(id);
+      } else {
+        toggled.add(id);
+      }
+      commit("setFavorites", toggled);
     },
   },
 });

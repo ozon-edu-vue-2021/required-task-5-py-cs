@@ -47,7 +47,8 @@ export default {
     },
   },
   mounted() {
-    if (!this.products.length) this.$store.dispatch("fetchProducts");
+    if (!Object.keys(this.products).length)
+      this.$store.dispatch("fetchProducts");
   },
 };
 </script>

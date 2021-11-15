@@ -32,7 +32,6 @@ export default {
     ...mapGetters({
       basketItems: "getBasketItems",
       basketTotal: "getBasketTotal",
-      recipe: "getRecipe",
     }),
     isEmpty() {
       return this.basketItems.length === 0;
@@ -40,7 +39,11 @@ export default {
   },
   methods: {
     handleOrderSubmit() {
-      alert(this.recipe);
+      const recipe =
+        this.basketItems
+          .map((item) => `${item.name}: $${item.price} x ${item.qty}`)
+          .join("\n") + `\n-----\nTotal: $${this.basketTotal.toFixed(2)}`;
+      alert(recipe);
     },
   },
 };

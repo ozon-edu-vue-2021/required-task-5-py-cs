@@ -24,7 +24,7 @@
 
 <script>
 import Qty from "./Qty.vue";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "Card",
@@ -45,8 +45,11 @@ export default {
     }),
   },
   computed: {
+    ...mapGetters({
+      getFavoriteById: "getFavoriteById",
+    }),
     star() {
-      return this.product.isFavorite ? "★" : "☆";
+      return this.getFavoriteById(this.product.id) ? "★" : "☆";
     },
     isInCart() {
       return Boolean(this.product.qty);

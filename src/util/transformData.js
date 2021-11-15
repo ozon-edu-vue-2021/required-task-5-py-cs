@@ -23,17 +23,20 @@ const getImage = (id) => {
 };
 
 const transformData = (rawData) => {
-  return rawData.map((product, id) => {
+  return rawData.reduce((products, product, id) => {
     const { dish, description } = product;
     return {
-      id,
-      name: dish,
-      description,
-      price: getRandomPrice(),
-      isFavorite: false,
-      image: getImage(id),
+      ...products,
+      [id]: {
+        id,
+        name: dish,
+        description,
+        price: getRandomPrice(),
+        isFavorite: false,
+        image: getImage(id),
+      },
     };
-  });
+  }, {});
 };
 
 export default transformData;
